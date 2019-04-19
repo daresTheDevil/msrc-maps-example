@@ -28,7 +28,7 @@
         </v-card-title>
         <v-list class="mx-0">
           <v-list-tile
-            v-for="item in results"
+            v-for="item in entities"
             :key="item.name"
             class="px-0 mx-0"
           >
