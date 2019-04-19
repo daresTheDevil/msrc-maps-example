@@ -28,7 +28,7 @@
         </v-card-title>
         <v-list class="mx-0">
           <v-list-tile
-            v-for="item in entities"
+            v-for="item in results"
             :key="item.name"
             class="px-0 mx-0"
           >
@@ -505,12 +505,14 @@
 
 <script>
 import SingleEntity from '@/components/search/SingleEntity.vue'
+import entities from '@/assets/data/entities.json'
 
 export default {
   components: { SingleEntity },
   data() {
     return {
       timeout: 0,
+      entities,
       search: '',
       searchButton: 'all',
       results: [],
