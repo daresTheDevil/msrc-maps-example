@@ -198,6 +198,7 @@
 <script>
 // import { mapGetters } from 'vuex'
 import GaugeCard from '@/components/cards/GaugeCard.vue'
+import facts from '@/assets/data/facts.json'
 
 export default {
   components: {
@@ -205,10 +206,34 @@ export default {
   },
   data() {
     return {
-      assessmentColor: '#7b335a'
+      assessmentColor: '#7b335a',
+      facts
     }
   },
   computed: {
+    teachingFacts() {
+      return this.facts.filter(
+        fact =>
+          (fact.componentCode === 'NUMTCH' ||
+            fact.componentCode === 'EXPTCH' ||
+            fact.componentCode === 'PROVTCH' ||
+            fact.componentCode === 'INFTCH') &&
+          fact.entityId === this.$route.params.id &&
+          fact.aggregationCode === 'ALL'
+      )
+    },
+    otherFacts() {
+      return this.facts.filter(
+        fact =>
+          (fact.componentCode === 'CHRABS' ||
+            fact.componentCode === 'ADVCP' ||
+            fact.componentCode === 'PSECENR' ||
+            fact.componentCode === 'PRESCHPCT' ||
+            fact.componentCode === 'PERPEXP') &&
+          fact.entityId === this.$route.params.id &&
+          fact.aggregationCode === 'ALL'
+      )
+    }
     // ...mapGetters({ teachingFacts: 'getLandingTeachingFacts' }),
     // ...mapGetters({ otherFacts: 'getOtherFacts' })
   },

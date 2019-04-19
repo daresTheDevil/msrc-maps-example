@@ -255,9 +255,9 @@
 
     <accountability-grade />
 
-    <assessment-results v-if="show" />
+    <assessment-results />
 
-    <other-measures v-if="show" />
+    <other-measures />
 
     <section v-if="entity.entityType == 'District'" class="light-blue darken-4">
       <v-container class="py-5">
@@ -387,6 +387,7 @@ export default {
     })
   },
   methods: {
+    print() {},
     onScroll() {
       if (typeof window === 'undefined') return
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties

@@ -162,6 +162,8 @@ export default {
   },
   methods: {
     navigate(fact) {
+      // eslint-disable-next-line no-console
+      console.log('navigate', fact.componentCode)
       this.$router.push({
         name: 'details-component-id',
         params: {

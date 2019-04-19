@@ -340,7 +340,7 @@
                     </v-avatar>
                   </v-card-text>
                   <v-card-text class="py-1">
-                    <h1 class="title" :class="textColor">
+                    <h1 class="title" :class="item.textcolor">
                       {{ item.title }}
                     </h1>
                   </v-card-text>
@@ -514,6 +514,7 @@ export default {
       timeout: 0,
       entities,
       search: '',
+      sheet: false,
       searchButton: 'all',
       results: [],
       selected: [],
@@ -587,6 +588,7 @@ export default {
     this.results = this.entities
   },
   methods: {
+    compareEntities() {},
     clearSearch() {
       this.search = ''
       this.results = []
