@@ -606,10 +606,10 @@ export default {
       )
     },
     navigate(id) {
-      // this.$router.push({
-      //   name: 'entity-id',
-      //   params: { id: id }
-      // })
+      this.$router.push({
+        name: 'entity-id',
+        params: { id: id }
+      })
     }
   }
 }
