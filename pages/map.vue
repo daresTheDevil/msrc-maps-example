@@ -6,7 +6,7 @@
           <l-map
             ref="map"
             :options="mapOptions"
-            :zoom.sync="$vuetify.breakpoint.smAndDown ? smallZoom : zoom"
+            :zoom="$vuetify.breakpoint.smAndDown ? mobileZoom : zoom"
             :center.sync="center"
             class="mapContainer"
           >
@@ -14,16 +14,30 @@
               v-if="$vuetify.breakpoint.mdAndUp"
               position="topleft"
             />
+            <l-control position="bottomright">
+              <v-btn
+                fab
+                dark
+                color="pink"
+                class="overlayContainer"
+                @click="print"
+              >
+                <v-icon>mdi-camera</v-icon></v-btn
+              ></l-control
+            >
             <l-tile-layer :url="lightTiles" />
             <!-- :url="lightTiles" -->
             <!-- :url="standardTiles" -->
             <!-- :url="darkTiles" -->
-            <l-geo-json
-              ref="geojson"
-              :geojson="districts"
-              :options="options"
-              :options-style="styleFunction"
-            />
+            <div ref="print">
+              <l-geo-json
+                id="capture"
+                ref="geojson"
+                :geojson="districts"
+                :options="options"
+                :options-style="styleFunction"
+              />
+            </div>
             <v-container v-if="$vuetify.breakpoint.smAndUp" fluid>
               <v-layout justify-end>
                 <v-flex xs4 class="overlayContainer">
@@ -116,7 +130,11 @@
                 </v-flex>
               </v-layout>
             </v-container>
-            <l-marker-cluster v-if="markers" ref="schools" chunked-loading>
+            <l-marker-cluster
+              v-if="markers.length > 0"
+              ref="schools"
+              chunked-loading
+            >
               <l-marker
                 v-for="(school, s) in markers"
                 :key="s"
@@ -143,9 +161,6 @@
                 </l-icon>
               </l-marker>
             </l-marker-cluster>
-            <v-btn fab dark color="pink" class="overlayContainer"
-              ><v-icon>mdi-camera</v-icon></v-btn
-            >
           </l-map>
         </v-card>
         <v-footer
@@ -230,7 +245,7 @@
           <v-card light>
             <v-card-title class="py-1 px-0">
               <v-btn icon flat @click="menu = 0">
-                <v-icon>mdi-arrow-left</v-icon>
+                <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
               <span class="title font-weight-regular">Select data to view</span>
             </v-card-title>
@@ -254,7 +269,7 @@
           <v-card light>
             <v-card-title class="py-1 px-0">
               <v-btn icon flat @click="menu = 0">
-                <v-icon>mdi-arrow-left</v-icon>
+                <v-icon>mdi-chevron-left</v-icon>
               </v-btn>
               <span class="title font-weight-regular">Schools</span>
             </v-card-title>
@@ -280,6 +295,7 @@
 </template>
 
 <script>
+import html2canvas from 'html2canvas'
 import districts1516 from '@/assets/data/mde-districts-1516.json'
 import { features as schools1516 } from '@/assets/data/mde-schools-1516.json'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
@@ -299,6 +315,7 @@ export default {
       menu: 0,
       districtSelected: false,
       zoom: 7.5,
+      mobileZoom: 7,
       yearSelected: 0,
       dataSets: [
         {
@@ -313,7 +330,12 @@ export default {
         }
       ],
       years: ['2015/16', '2016/17', '2017/18'],
-      mapOptions: { zoomSnap: 0.5, zoomControl: false, zoomDelta: 0.5 },
+      mapOptions: {
+        zoomSnap: 0.5,
+        zoomControl: false,
+        zoomDelta: 0.5,
+        preferCanvas: true
+      },
       smallZoom: 9,
       standardTiles: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       lightTiles:
@@ -398,17 +420,51 @@ export default {
     })
   },
   methods: {
+    print() {
+      html2canvas(this.$refs.geojson, {
+        allowTaint: false,
+        useCORS: true,
+        width: 650,
+        height: 500
+      }).then(canvas => {
+        canvas.toBlob(blob => {
+          window.open(blob, 'my-map.png')
+        })
+      })
+      // const doc = new Jspdf('p', 'pt', 'letter', true)
+      // doc.fromHTML(document.getElementById('capture'))
+      // const position = 0
+      // html2canvas(this.$refs.print)
+      //   .then(canvas => {
+      //     // const width = doc.internal.pageSize.getWidth()
+      //     // const height = doc.internal.pageSize.getHeight()
+      //     // const ratio = width / height
+      //     this.printFile = canvas.toDataURL()
+      //     // doc.addImage(canvas, 'PNG', 0, position, width, width * ratio * 3)
+      //     // doc.save('Spec_Sheet.pdf')
+      //     window.open(this.printFile)
+      //   })
+      //   .catch(error => {
+      //     alert(error)
+      //   })
+      // .then(this.$router.replace("/"));
+      // this.$router.replace("/")
+      // this.printSnackbar = true
+    },
     resetMap() {
-      if (this.$vuetify.breakpoint.xsAndDown) {
-        this.map.flyTo(this.originalCenter, 5, { duration: 0.2 })
-        this.$refs.geojson.mapObject.setStyle(this.styleFunction)
-      }
-      this.map.flyTo(this.originalCenter, 7.5, { duration: 0.2 })
+      this.map.fitBounds(this.$refs.geojson.mapObject.getBounds().pad(0.035))
+      // if (this.$vuetify.breakpoint.smAndDown) {
+      //   this.map.flyTo(this.originalCenter, this.mobileZoom, { duration: 0.2 })
+      //   this.$refs.geojson.mapObject.setStyle(this.styleFunction)
+      // }
+      // this.map.flyTo(this.originalCenter, this.zoom, { duration: 0.2 })
       this.$refs.geojson.mapObject.setStyle(this.styleFunction)
+      this.markers = []
     },
     resetClick(e) {
       this.$refs.geojson.resetStyle()
       this.markers = []
+      this.districtSelected = false
     },
     handleClick(e) {
       // eslint-disable-next-line no-console

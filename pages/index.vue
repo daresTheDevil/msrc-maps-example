@@ -7,22 +7,20 @@
     >
       <v-card flat>
         <v-card-title>
-          <v-btn icon @click="searchDialog = false">
-            <v-icon>mdi-arrow-left</v-icon>
-          </v-btn>
           <v-text-field
             v-if="searchDialog"
             v-model="search"
-            solo
-            background-color="grey lighten-3"
-            flat
+            outline
             color="primary"
             type="text"
             clearable
             placeholder="Being searching here..."
             hide-details
             autofocus
+            prepend-inner-icon="mdi-chevron-left"
+            single-line
             :clear-icon-cb="clearSearch"
+            @click:prepend-inner="searchDialog = false"
             @input="onChange"
           />
         </v-card-title>
